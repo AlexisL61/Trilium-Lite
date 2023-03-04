@@ -6,6 +6,8 @@ import 'package:src/services/api/ApiError.dart';
 import 'package:src/services/api/ApiParser.dart';
 import 'package:src/services/logger/Logger.dart';
 
+import '../../model/Note.dart';
+
 typedef ApiDataParser<T> = T Function(Map<String, dynamic> message);
 
 class ApiService {
@@ -28,6 +30,14 @@ class ApiService {
         dataParser: tokenParser);
   }
 
+  Future<Note> getNote(String id){
+    return _apiCall<Note>(
+        method: "GET",
+        path: "/etapi/notes/"+id,
+        
+        dataParser: noteParser);
+  }
+
   Future<T> _apiCall<T>({
     required String method,
     required String path,
@@ -42,10 +52,16 @@ class ApiService {
           status: -1);
     } else {
       try {
+        // Opening the request
         final request = await client.open(
             method, configuration!.serverUri, configuration!.port, path);
+
         request.headers.contentType = ContentType.json;
-        request.write(jsonEncode(data));
+        if (configuration!.token != null) {
+          request.headers.add("Authorization", "${configuration!.token}");
+        }
+        if (data != null)
+          request.write(jsonEncode(data));
         final response = await request.close();
         final responseData = await response.transform(utf8.decoder).join();
         Logger().log("Response : ${response.statusCode} ${responseData}");
