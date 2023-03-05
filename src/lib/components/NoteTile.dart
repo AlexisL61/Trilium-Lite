@@ -22,27 +22,27 @@ class _NoteTileState extends State<NoteTile> {
   @override
   Widget build(BuildContext context) {
     return InkWell(
+      onTap: widget.node.data.childNoteIds.isNotEmpty &&
+              widget.node.children.isEmpty
+          ? () {
+              loadChildren();
+            }
+          : null,
       child: Padding(
-          padding: EdgeInsets.all(8),
+          padding: const EdgeInsets.all(8),
           child: Row(children: [
             widget.node.data.childNoteIds.isNotEmpty
                 ? widget.node.expanded
                     ? const Icon(Icons.arrow_drop_down)
                     : const Icon(Icons.arrow_right)
-                : SizedBox(width: 10),
+                : const SizedBox(width: 10),
             Text(widget.node.data.title),
             _isLoadingChildren
                 ? const CircularProgressIndicator(
                     strokeWidth: 4,
                   )
                 : Container()
-          ])),
-      onTap: widget.node.data.childNoteIds.isNotEmpty &&
-              widget.node.children.isEmpty
-          ? () {
-              loadChildren();
-            }
-          : null
+          ]))
     );
   }
 
